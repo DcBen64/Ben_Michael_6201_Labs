@@ -226,9 +226,9 @@
                 AddNavigationEvents();
                 LoadLink("login");
             });
-            updateTaskListVisibility(); // Add this line to update the visibility of the task-list nav link
+            updateTaskListVisibility(); // this line to update the visibility of the task-list nav link
         } else {
-            updateTaskListVisibility(); // Add this line to update the visibility of the task-list nav link
+            updateTaskListVisibility(); // this line to update the visibility of the task-list nav link
         }
     }
     function DisplayLoginPage() {
@@ -339,7 +339,7 @@
           }
       
           $taskItem.toggleClass("editing");
-          $editTextInput.toggle(); // Add this line to toggle the visibility of the edit text input
+          $editTextInput.toggle(); // this line to toggle the visibility of the edit text input
         });
       }
       
@@ -407,7 +407,7 @@
         LoadHeader();
         LoadLink("home");
         LoadFooter();
-        $("#taskListLink").hide(); // Add this line to initially hide the task-list nav link
+        $("#taskListLink").hide(); // this line to initially hide the task-list nav link
     }
     window.addEventListener("load", Start);
     $(document).ready(function () {

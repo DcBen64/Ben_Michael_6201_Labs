@@ -46,17 +46,17 @@ var core;
 })(core || (core = {}));
 let router = new core.Router();
 router.AddTable([
-    "/",
-    "/home",
-    "/about",
-    "/services",
-    "/contact",
-    "/contact-list",
-    "/products",
-    "/register",
-    "/login",
-    "/edit",
-    "/task-list"
+    "${basePath}/",
+    "${basePath}/home",
+    "${basePath}/about",
+    "${basePath}/services",
+    "${basePath}/contact",
+    "${basePath}/contact-list",
+    "${basePath}/products",
+    "${basePath}/register",
+    "${basePath}/login",
+    "${basePath}/edit",
+    "${basePath}/task-list"
 ]);
 let route = location.pathname;
 router.ActiveLink = (router.Find(route) > -1) ? (route == "/") ? "home" : route.substring(1) : "404";
