@@ -297,10 +297,10 @@
                     var serializedUser = newUser.serialize();
                     if (serializedUser) {
                         sessionStorage.setItem("user", serializedUser);
-                        messageArea.removeAttr("class").hide();
-                        LoadLink("contact-list");
-                        updateTaskListVisibility();
-                    }
+                    messageArea.removeAttr("class").hide();
+                    LoadLink("contact-list");
+                    updateTaskListVisibility();
+                }
                 }
                 else {
                     $("#username").trigger("focus").trigger("select");
@@ -328,12 +328,14 @@
         $("#newTaskButton").on("click", function () {
             AddNewTask();
         });
+    
         // add a new Task to the Task List when user presses "Enter" key while typing
         taskInput.on("keypress", function (event) {
             if (event.key == "Enter") {
                 AddNewTask();
             }
         });
+    
         // Edit task (event delegation)
         $("#taskList").on("click", ".editButton", function () {
             var $taskItem = $(this).closest("li");
@@ -370,42 +372,42 @@
             var $taskItem = $(this).closest("li");
             var $taskText = $taskItem.find(".task-text");
             var $editTextInput = $taskItem.find(".editTextInput");
-            if ($taskItem.hasClass("editing")) {
-                if ($editTextInput.val() !== undefined) {
+          if ($taskItem.hasClass("editing")) {
+            if ($editTextInput.val() !== undefined) {
                     $taskText.text($editTextInput.val());
-                }
-                $(this).html("<i class='fas fa-edit'></i>");
+            }
+            $(this).html("<i class='fas fa-edit'></i>");
             }
             else {
-                $editTextInput.val($taskText.text());
-                $(this).html("<i class='fas fa-check'></i>");
-            }
-            $taskItem.toggleClass("editing");
-            $editTextInput.toggle(); // this line to toggle the visibility of the edit text input
+            $editTextInput.val($taskText.text());
+            $(this).html("<i class='fas fa-check'></i>");
+          }
+          $taskItem.toggleClass("editing");
+          $editTextInput.toggle(); // this line to toggle the visibility of the edit text input
         });
-    }
-    function AddNewTask() {
+      }
+      function AddNewTask() {
         var messageArea = $("#messageArea");
         messageArea.hide();
         var taskInput = $("#taskTextInput");
         var taskInputValue = taskInput.val();
         if (taskInput.val() != "" && taskInputValue.charAt(0) != " ") {
             var newElement = "\n            <li class=\"list-group-item\" id=\"task\">\n                <div style=\"position: relative;\">\n                    <span class=\"task-text\">".concat(taskInput.val(), "</span>\n                    <input type=\"text\" class=\"form-control edit-task editTextInput\" style=\"display: none; width: 100%; position: absolute; z-index: 1;\">\n                </div>\n                <span class=\"float-end\">\n                    <button class=\"btn btn-outline-primary btn-sm editButton\"><i class=\"fas fa-edit\"></i></button>\n                    <button class=\"btn btn-outline-danger btn-sm deleteButton\"><i class=\"fas fa-trash-alt\"></i></button>\n                </span>\n            </li>\n        ");
-            $("#taskList").append(newElement);
-            messageArea.removeAttr("class").hide();
-            taskInput.val("");
-            // Attach click event listener for the edit button
-            attachEditButtonListener();
+          $("#taskList").append(newElement);
+          messageArea.removeAttr("class").hide();
+          taskInput.val("");
+          // Attach click event listener for the edit button
+          attachEditButtonListener();
         }
         else {
-            taskInput.trigger("focus").trigger("select");
-            messageArea.show().addClass("alert alert-danger").text("Please enter a valid Task.");
+          taskInput.trigger("focus").trigger("select");
+          messageArea.show().addClass("alert alert-danger").text("Please enter a valid Task.");
         }
         // Delete task
         $(".deleteButton").click(function () {
-            $(this).closest("li").remove();
+          $(this).closest("li").remove();
         });
-    }
+      }
     function ActiveLinkCallBack() {
         switch (router.ActiveLink) {
             case "home": return DisplayHomePage;

@@ -402,43 +402,43 @@
         }
     }
     function DisplayLoginPage() {
-    console.log("Login Page");
-    let messageArea = $("#messageArea");
-    messageArea.hide();
-    AddLinkEvents("register");
-    $("#loginButton").on("click", function () {
-        let success = false;
-        let newUser: core.User = new core.User();
-        $.getJSON("./Data/users.json", function (data) {
-            for (const user of data.users) {
-                let username = $("#username").val();
-                let password = $("#password").val();
-                if (username == user.Username && password == user.Password) {
-                    newUser.fromJSON(user);
-                    success = true;
-                    break;
+        console.log("Login Page");
+        let messageArea = $("#messageArea");
+        messageArea.hide();
+        AddLinkEvents("register");
+        $("#loginButton").on("click", function () {
+            let success = false;
+            let newUser: core.User = new core.User();
+            $.getJSON("./Data/users.json", function (data) {
+                for (const user of data.users) {
+                    let username = $("#username").val();
+                    let password = $("#password").val();
+                    if (username == user.Username && password == user.Password) {
+                        newUser.fromJSON(user);
+                        success = true;
+                        break;
+                    }
                 }
-            }
-            if (success) {
-                let serializedUser = newUser.serialize();
-                if (serializedUser) {
-                    sessionStorage.setItem("user", serializedUser);
-                    messageArea.removeAttr("class").hide();
-                    LoadLink("contact-list");
-                    updateTaskListVisibility();
+                if (success) {
+                    let serializedUser = newUser.serialize();
+                    if (serializedUser) {
+                        sessionStorage.setItem("user", serializedUser);
+                        messageArea.removeAttr("class").hide();
+                        LoadLink("contact-list");
+                        updateTaskListVisibility();
+                    }
                 }
-            }
-            else {
-                $("#username").trigger("focus").trigger("select");
-                messageArea.addClass("alert alert-danger").text("Error: Invalid Login Information").show();
-            }
+                else {
+                    $("#username").trigger("focus").trigger("select");
+                    messageArea.addClass("alert alert-danger").text("Error: Invalid Login Information").show();
+                }
+            });
         });
-    });
-    $("#cancelButton").on("click", function () {
-        document.forms[0].reset();
-        LoadLink("home");
-    });
-}
+        $("#cancelButton").on("click", function () {
+            document.forms[0].reset();
+            LoadLink("home");
+        });
+    }
     function DisplayRegisterPage() {
         console.log("Register Page");
         AddLinkEvents("login");
