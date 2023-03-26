@@ -1,3 +1,4 @@
+
 // IIFE -- Immediately Invoked Function Expression
 // AKA -- Anonymous Self-Executing Function
 (function()
@@ -386,219 +387,176 @@
         }
     }
 
-    function CheckLogin(): void
-    {
-        // if user is logged in
-        if(sessionStorage.getItem("user"))
-        {
-            // swap out the login link for logout
-            $("#login").html(
-                `<a id="logout" class="nav-link" href="#"><i class="fas fa-sign-out-alt"></i> Logout</a>`
-            );
-            $("#Task List").html(
-                `<a id="Task List" class="nav-link" href="#"><i class="fas fa-sign-out-alt"></i> Task List</a>`
-            );
-            
-            $("#logout").on("click", function()
-            {
-                // perform logout
+    function CheckLogin() {
+        if (sessionStorage.getItem("user")) {
+            $("#login").html(`<a id="logout" class="nav-link" href="#"><i class="fas fa-sign-out-alt"></i> Logout</a>`);
+            $("#logout").on("click", function () {
                 sessionStorage.clear();
-
-                 // swap out the logout link for login
-                $("#login").html(
-                    `<a class="nav-link" data="login"><i class="fas fa-sign-in-alt"></i> Login</a>`
-                );
-
-                $("#Task List").html(
-                    `<a></a>`
-                );
-                    
+                $("#login").html(`<a class="nav-link" data="login"><i class="fas fa-sign-in-alt"></i> Login</a>`);
                 AddNavigationEvents();
-
-                // redirect back to login
                 LoadLink("login");
             });
+            updateTaskListVisibility(); // this line to update the visibility of the task-list nav link
+        } else {
+            updateTaskListVisibility(); // this line to update the visibility of the task-list nav link
         }
     }
-
-    function DisplayLoginPage(): void 
-    {
-        console.log("Login Page");
-        let messageArea =  $("#messageArea");
-        messageArea.hide();
-
-        AddLinkEvents("register");
-
-        $("#loginButton").on("click", function()
-        {
-            let success = false;
-            // create an empty user object
-            let newUser = new core.User();
-
-            // uses jQuery shortcut to load the users.json file
-            $.get("./Data/users.json", function(data)
-            {
-                // for every user in the users.json file
-                for (const user of data.users) 
-                {
-                    let username = document.forms[0].username.value;
-                    let password = document.forms[0].password.value;
-
-                    // check if the username and password entered in the form matches this user
-                    if(username == user.Username && password == user.Password)
-                    {
-                        // get the user data from the file and assign to our empty user object
-                        newUser.fromJSON(user);
-                        success = true;
-                        break;
-                    }
+    function DisplayLoginPage() {
+    console.log("Login Page");
+    let messageArea = $("#messageArea");
+    messageArea.hide();
+    AddLinkEvents("register");
+    $("#loginButton").on("click", function () {
+        let success = false;
+        let newUser: core.User = new core.User();
+        $.getJSON("./Data/users.json", function (data) {
+            for (const user of data.users) {
+                let username = $("#username").val();
+                let password = $("#password").val();
+                if (username == user.Username && password == user.Password) {
+                    newUser.fromJSON(user);
+                    success = true;
+                    break;
                 }
-
-                 // if username and password matches - success.. the perform the login sequence
-                if(success)
-                {
-                    // add user to session storage
-                    sessionStorage.setItem("user", newUser.serialize() as string);
-
-                    // hide any error message
+            }
+            if (success) {
+                let serializedUser = newUser.serialize();
+                if (serializedUser) {
+                    sessionStorage.setItem("user", serializedUser);
                     messageArea.removeAttr("class").hide();
-
-                    // redirect the user to the secure area of our site - contact-list.html
                     LoadLink("contact-list");
+                    updateTaskListVisibility();
                 }
-                // else if bad credentials were entered...
-                else
-                {
-                    // display an error message
-                    $("#username").trigger("focus").trigger("select");
-                    messageArea.addClass("alert alert-danger").text("Error: Invalid Login Information").show();
-                }
-            });
+            }
+            else {
+                $("#username").trigger("focus").trigger("select");
+                messageArea.addClass("alert alert-danger").text("Error: Invalid Login Information").show();
+            }
         });
-
-        $("#cancelButton").on("click", function()
-        {
-            // clear the login form
-            document.forms[0].reset();
-
-            // return to the home page
-            LoadLink("home");
-        });
-    }
-
-    function DisplayRegisterPage(): void
-    {
+    });
+    $("#cancelButton").on("click", function () {
+        document.forms[0].reset();
+        LoadLink("home");
+    });
+}
+    function DisplayRegisterPage() {
         console.log("Register Page");
-
         AddLinkEvents("login");
     }
-
-    function Display404Page(): void
-    {
-
+    function Display404Page() {
+        console.log("404 Page");
     }
+    function DisplayTaskList() {
+        let messageArea = $("#messageArea");
+        messageArea.hide();
+        let taskInput = $("#taskTextInput");
+    
+        // add a new Task to the Task List
+        $("#newTaskButton").on("click", function() {
+            AddNewTask();
+        });
+    
+        // add a new Task to the Task List when user presses "Enter" key while typing
+        taskInput.on("keypress", function(event) {
+            if (event.key == "Enter") {
+                AddNewTask();
+            }
+        });
+    
+        // Edit task (event delegation)
+        $("#taskList").on("click", ".editButton", function () {
+            let $taskItem = $(this).closest("li");
+            let $taskText = $taskItem.find(".task-text");
+            let $editTextInput = $taskItem.find(".editTextInput");
+    
+            if ($taskItem.hasClass("editing")) {
+                $taskText.text($editTextInput.val() as string);
+                $(this).html("<i class='fas fa-edit'></i>");
+            } else {
+                $editTextInput.val($taskText.text());
+                $(this).html("<i class='fas fa-check'></i>");
+            }
+    
+            $taskItem.toggleClass("editing");
+        });
+    
+        // Delete task
+        $("#taskList").on("click", ".deleteButton", function () {
+            $(this).closest("li").remove();
+        });
+        // Attach click event listener for the edit button
+        attachEditButtonListener();
+    }
+    function updateTaskListVisibility() {
+        const taskListLink = $('#taskListLink');
+    
+        if (sessionStorage.getItem('user')) {
+            taskListLink.show();
+        } else {
+            taskListLink.hide();
+        }
+    }
+    function attachEditButtonListener() {
+        $(".editButton").off("click").on("click", function () {
+          let $taskItem = $(this).closest("li");
+          let $taskText = $taskItem.find(".task-text");
+          let $editTextInput = $taskItem.find(".editTextInput");
+      
+          if ($taskItem.hasClass("editing")) {
+            if ($editTextInput.val() !== undefined) {
+                $taskText.text($editTextInput.val() as string);
+            }
+            $(this).html("<i class='fas fa-edit'></i>");
+          } else {
+            $editTextInput.val($taskText.text());
+            $(this).html("<i class='fas fa-check'></i>");
+          }
+      
+          $taskItem.toggleClass("editing");
+          $editTextInput.toggle(); // this line to toggle the visibility of the edit text input
+        });
+      }
+      
+      
+      function AddNewTask() {
+        let messageArea = $("#messageArea");
+        messageArea.hide();
+        let taskInput = $("#taskTextInput");
+        let taskInputValue = taskInput.val() as string;
+      
+        if (taskInput.val() != "" && taskInputValue.charAt(0) != " ") {
+            let newElement = `
+            <li class="list-group-item" id="task">
+                <div style="position: relative;">
+                    <span class="task-text">${taskInput.val()}</span>
+                    <input type="text" class="form-control edit-task editTextInput" style="display: none; width: 100%; position: absolute; z-index: 1;">
+                </div>
+                <span class="float-end">
+                    <button class="btn btn-outline-primary btn-sm editButton"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-outline-danger btn-sm deleteButton"><i class="fas fa-trash-alt"></i></button>
+                </span>
+            </li>
+        `;
+          $("#taskList").append(newElement);
+          messageArea.removeAttr("class").hide();
+          taskInput.val("");
+      
+          // Attach click event listener for the edit button
+          attachEditButtonListener();
+        } else {
+          taskInput.trigger("focus").trigger("select");
+          messageArea.show().addClass("alert alert-danger").text("Please enter a valid Task.");
+        }
+      
+        // Delete task
+        $(".deleteButton").click(function () {
+          $(this).closest("li").remove();
+        });
+      }
 
-    /**
-     * This function adds a new Task to the TaskList
-     */
-     function AddNewTask() 
-     {
-       let messageArea = $("#messageArea");
-       messageArea.hide();
-       let taskInput = $("#taskTextInput");
-       let taskInputValue = taskInput.val() as string;
  
-       if (taskInput.val() != "" && taskInputValue.charAt(0) != " ") 
-       {
-         let newElement = `
-               <li class="list-group-item" id="task">
-               <span id="taskText">${taskInput.val()}</span>
-               <span class="float-end">
-                   <button class="btn btn-outline-primary btn-sm editButton"><i class="fas fa-edit"></i>
-                   <button class="btn btn-outline-danger btn-sm deleteButton"><i class="fas fa-trash-alt"></i></button>
-               </span>
-               <input type="text" class="form-control edit-task editTextInput">
-               </li>
-               `;
-         $("#taskList").append(newElement);
-         messageArea.removeAttr("class").hide();
-         taskInput.val("");
-       } 
-       else 
-       {
-         taskInput.trigger("focus").trigger("select");
-         messageArea.show().addClass("alert alert-danger").text("Please enter a valid Task.");
-       }
-     }
- 
-     /**
-      * This function is the Callback function for the TaskList
-      *
-      */
-     function DisplayTaskList()
-     {
-         let messageArea = $("#messageArea");
-         messageArea.hide();
-         let taskInput = $("#taskTextInput");
- 
-         // add a new Task to the Task List
-         $("#newTaskButton").on("click", function()
-         {         
-             AddNewTask();
-         });
- 
-         taskInput.on("keypress", function(event)
-         {
-           if(event.key == "Enter")
-           {
-             AddNewTask();
-           }
-          });
- 
-         // Edit an Item in the Task List
-         $("ul").on("click", ".editButton", function()
-         {
-            let editText = $(this).parent().parent().children(".editTextInput");
-            let text = $(this).parent().parent().text();
-            let editTextValue = editText.val() as string;
-            editText.val(text).show().trigger("select");
-            editText.on("keypress", function(event)
-            {
-             if(event.key == "Enter")
-             {
-               if(editText.val() != "" && editTextValue.charAt(0) != " ")
-               {
-                 editText.hide();
-                 $(this).parent().children("#taskText").text(editTextValue);
-                 messageArea.removeAttr("class").hide();
-               }
-               else
-               {
-                 editText.trigger("focus").trigger("select");
-                 messageArea.show().addClass("alert alert-danger").text("Please enter a valid Task.");
-               }
-             }
-            });
-         });
- 
-         // Delete a Task from the Task List
-         $("ul").on("click", ".deleteButton", function(){
-             if(confirm("Are you sure?"))
-             {
-                 $(this).closest("li").remove();
-             }    
-         });
-     }
-
-    /**
-     * This method returns the appropriate function callback relative to the Active Link
-     *
-     * @returns {Function}
-     */
-    function ActiveLinkCallBack(): Function
-    {
-        switch(router.ActiveLink)
-        {
+    function ActiveLinkCallBack() {
+        switch (router.ActiveLink) {
             case "home": return DisplayHomePage;
             case "about": return DisplayAboutPage;
             case "products": return DisplayProductsPage;
@@ -615,24 +573,21 @@
                 return new Function();
         }
     }
-
-    // named function option
-
-    /**
-     * This is the entry point to the web application
-     *
-     */
-    function Start(): void
-    {
+    $(document).ready(function() {
+        Start();
+    });
+    function Start() {
         console.log("App Started!");
-
         LoadHeader();
-
         LoadLink("home");
-
         LoadFooter();
+        $("#taskListLink").hide(); // this line to initially hide the task-list nav link
     }
-
     window.addEventListener("load", Start);
-
+    $(document).ready(function () {
+        Start();
+        ActiveLinkCallBack();
+        updateTaskListVisibility();
+    });
 })();
+//# sourceMappingURL=app.js.map
